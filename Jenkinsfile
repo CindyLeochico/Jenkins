@@ -1,19 +1,34 @@
 pipeline {
     agent any
 
+    environment {
+        NETLIFY_SITE_ID = 'nfp_jWxSQ67tBBYVkBGi7Za3Qk7ieQo191d80ca8'
+        NETLIFY AUTH TOKEN = credentials('myToken')
+    }
+
     stages {
         stage('Build') {
             steps {
                 script {
-                    // Pull the Docker image and run commands inside the container
-                    docker.image('node:20.11.0-alpine').inside {
-                        // Run necessary commands inside the container
-                        sh '''
-                        node --version
-                        npm --version
-                        npm install
-                        npm run build
-                        '''
+                    try {
+                        echo "Pulling Node image..."
+                        docker.image('node:20.11.0-alpine').pull()
+
+                        docker.image('node:20.11.0-alpine').inside {
+                            sh '''
+                            echo "Node and NPM versions:"
+                            node --version
+                            npm --version
+
+                            echo "Installing dependencies..."
+                            npm install
+
+                            echo "Building the project..."
+                            npm run build
+                            '''
+                        }
+                    } catch (Exception e) {
+                        error "Build stage failed: ${e.message}"
                     }
                 }
             }
@@ -22,27 +37,39 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Reuse the same Docker image to run tests
-                    docker.image('node:20.11.0-alpine').inside {
-                        // Run tests
-                        sh '''
-                        npm test
-                        '''
+                    try {
+                        docker.image('node:20.11.0-alpine').inside {
+                            sh '''
+                            echo "Running tests..."
+                            npm test
+                            '''
+                        }
+                    } catch (Exception e) {
+                        error "Test stage failed: ${e.message}"
                     }
                 }
             }
         }
+
         stage('Deploy') {
             steps {
                 script {
-                    // Reuse the same Docker image to deploy the application
-                    docker.image('node:20.11.0-alpine').inside {
-                        // Deploy the application
-                        sh '''
-                        npm install netlify-cli
-                        node_modules/.bin/netlify --version
+                    try {
+                        docker.image('node:20.11.0-alpine').inside {
+                            sh '''
+                            echo "Installing Netlify CLI..."
+                            npm install netlify-cli
 
-                        '''
+                            echo "Netlify CLI version:"
+                            node_modules/.bin/netlify --version
+
+                            echo "Deploying to Site ID: $NETLIFY_SITE_ID"
+                            node_modules/.bin/netlify status
+                            node_modules/.bin/netlify deploy --prod --dir=build
+                            '''
+                        }
+                    } catch (Exception e) {
+                        error "Deploy stage failed: ${e.message}"
                     }
                 }
             }
@@ -54,10 +81,10 @@ pipeline {
             echo 'Pipeline completed!'
         }
         success {
-            echo 'Build and tests succeeded!'
+            echo 'Build, test, and deployment succeeded! 🎉'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline failed! ❌'
         }
     }
 }
