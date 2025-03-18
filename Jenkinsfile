@@ -55,7 +55,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    try {
+                   
                         docker.image('node:20.11.0-alpine').inside {
                             sh '''
                             echo "Installing Netlify CLI..."
@@ -69,7 +69,7 @@ pipeline {
                             node_modules/.bin/netlify deploy --prod --dir=build
                             '''
                         }
-                    } 
+                    }
                 }
             }
         }
