@@ -69,9 +69,7 @@ pipeline {
                             node_modules/.bin/netlify deploy --prod --dir=build
                             '''
                         }
-                    } catch (Exception e) {
-                        error "Deploy stage failed: ${e.message}"
-                    }
+                    } 
                 }
             }
         }
