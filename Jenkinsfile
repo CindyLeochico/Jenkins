@@ -32,6 +32,21 @@ pipeline {
                 }
             }
         }
+        stage('Deploy') {
+            steps {
+                script {
+                    // Reuse the same Docker image to deploy the application
+                    docker.image('node:20.11.0-alpine').inside {
+                        // Deploy the application
+                        sh '''
+                        npm install netlify-cli
+                        node_modules/.bin/netlify --version
+
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {
