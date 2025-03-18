@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-        NETLIFY_SITE_ID = 'nfp_jWxSQ67tBBYVkBGi7Za3Qk7ieQo191d80ca8'
-        NETLIFY AUTH TOKEN = credentials('myToken')
-    }
+    NETLIFY_SITE_ID = 'nfp_jWxSQ67tBBYVkBGi7Za3Qk7ieQo191d80ca8'
+    NETLIFY_AUTH_TOKEN = credentials('myToken')  // ✅ Fixed the variable name
+}
+
 
     stages {
         stage('Build') {
