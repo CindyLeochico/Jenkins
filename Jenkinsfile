@@ -74,16 +74,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            echo 'Pipeline completed!'
-        }
-        success {
-            echo 'Build, test, and deployment succeeded! 🎉'
-        }
-        failure {
-            echo 'Pipeline failed! ❌'
-        }
-    }
 }
