@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-    NETLIFY_SITE_ID = 'nfp_jWxSQ67tBBYVkBGi7Za3Qk7ieQo191d80ca8'
-    NETLIFY_AUTH_TOKEN = credentials('myToken')  // ✅ Fixed the variable name
-}
-
+        NETLIFY_SITE_ID = 'nfp_jWxSQ67tBBYVkBGi7Za3Qk7ieQo191d80ca8'
+        NETLIFY_AUTH_TOKEN = credentials('myToken')  // ✅ Fixed the variable name
+    }
 
     stages {
         stage('Build') {
@@ -55,7 +54,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                   
+                    try {
                         docker.image('node:20.11.0-alpine').inside {
                             sh '''
                             echo "Installing Netlify CLI..."
@@ -65,13 +64,27 @@ pipeline {
                             node_modules/.bin/netlify --version
 
                             echo "Deploying to Site ID: $NETLIFY_SITE_ID"
-                            node_modules/.bin/netlify status
-                            node_modules/.bin/netlify deploy --prod --dir=build
+                            NETLIFY_AUTH_TOKEN=$NETLIFY_AUTH_TOKEN node_modules/.bin/netlify status
+                            NETLIFY_AUTH_TOKEN=$NETLIFY_AUTH_TOKEN node_modules/.bin/netlify deploy --prod --dir=build
                             '''
                         }
+                    } catch (Exception e) {
+                        error "Deploy stage failed: ${e.message}"
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed!'
+        }
+        success {
+            echo 'Build, test, and deployment succeeded! 🎉'
+        }
+        failure {
+            echo 'Pipeline failed! ❌'
         }
     }
 }
