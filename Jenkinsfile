@@ -3,7 +3,8 @@
 
         stages {
             stage('Build') {
-                script {
+                steps {
+                    script {
                         echo "Pulling Node image..."
                         docker.image('node:20.11.0-alpine').pull()
 
@@ -19,11 +20,13 @@
                             echo "Building the project..."
                             npm run build
                             '''
+                        }
+                    }
+                }
             }
         }
     }
-        }
-    }
+
 
     // pipeline {
     //     agent any
