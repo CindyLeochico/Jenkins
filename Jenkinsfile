@@ -25,6 +25,20 @@
                 }
             }
         }
+
+        stage('Test') {
+                steps {
+                    script {
+                        docker.image('node:20.11.0-alpine').inside {
+                            sh '''
+                            echo "Running tests..."
+                            npm test
+                            '''
+                        }
+                    }
+                }
+            }
+
     }
 
 
