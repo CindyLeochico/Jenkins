@@ -2,8 +2,9 @@ import React from "react";
 
 function App() {
   return (
-    <div className="App">
-      <h1>Cindy Leochico</h1>
+    <div>
+      <h1>Name: Cindy Leochico</h1>
+      <p>Course: TECH2102:Enterprise Computing</p>
     </div>
   );
 }
