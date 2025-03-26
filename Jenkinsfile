@@ -15,12 +15,12 @@ pipeline {
 
                     docker.image('node:20.11.0-alpine').inside {
                         sh '''
-                        echo "Node and NPM versions:"
+                        echo "Checking Node and NPM versions..."
                         node --version
                         npm --version
 
                         echo "Installing dependencies..."
-                        npm install
+                        npm ci
 
                         echo "Building the project..."
                         npm run build
@@ -36,7 +36,6 @@ pipeline {
                     docker.image('node:20.11.0-alpine').inside {
                         sh '''
                         echo "Running tests..."
-                        test -f
                         npm test
                         '''
                     }
@@ -49,16 +48,28 @@ pipeline {
                 script {
                     docker.image('node:20.11.0-alpine').inside {
                         sh '''
-                        echo "Installing Netlify CLI..."
-                        npm install netlify-cli
-                        node modules/.bin/netlify --version
+                        echo "Installing Netlify CLI globally..."
+                        npm install -g netlify-cli --legacy-peer-deps
+
+                        echo "Checking Netlify CLI version..."
+                        netlify --version
+
                         echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                        node modules/.bin/netlify status
-                        node modules/.bin/netlify deploy --prod --dir=build
+                        netlify status
+                        netlify deploy --prod --dir=build
                         '''
                     }
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo '🎉 Deployment successful!'
+        }
+        failure {
+            echo '❌ Deployment failed!'
         }
     }
 }
